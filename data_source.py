@@ -1,4 +1,4 @@
-import math
+﻿import math
 import json
 from utils.http_utils import AsyncHttpx
 import jinja2
@@ -135,7 +135,7 @@ def format_vtb_info(info: dict, medal_dict: dict) -> dict:
     return {"name": name, "uid": uid, "medal": medal}
 
 
-async def get_reply(name: str) -> Union[str, bytes]:
+async def get_reply(name: str, a: str) -> Union[str, bytes]:
     if name.isdigit():
         uid = int(name)
     else:
@@ -144,17 +144,24 @@ async def get_reply(name: str) -> Union[str, bytes]:
     if not user_info:
         return "获取用户信息失败，请检查名称或使用uid查询"
 
+    medals = await get_medals(uid)
+    medal_dict = {medal["target_name"]: medal for medal in medals}
+
+    medals_attentions = {medal["medal_info"]["target_id"] for medal in medals}
+
     attentions = user_info.get("attentions", [])
     follows_num = int(user_info["attention"])
     if not attentions and follows_num:
         return "获取用户关注列表失败，关注列表可能未公开"
+    if a == "B":
+        attentions = {medal["medal_info"]["target_id"] for medal in medals}
+        follows_num = len(medals_attentions)
+        if not attentions and follows_num:
+            return "获取用户粉丝勋章墙列表失败，粉丝勋章墙列表可能未公开"
 
     vtb_list = await get_vtb_list()
     if not vtb_list:
         return "获取vtb列表失败，请稍后再试"
-
-    medals = await get_medals(uid)
-    medal_dict = {medal["target_name"]: medal for medal in medals}
 
     vtb_dict = {info["mid"]: info for info in vtb_list}
     vtbs = [info for uid, info in vtb_dict.items() if uid in attentions]
@@ -173,22 +180,36 @@ async def get_reply(name: str) -> Union[str, bytes]:
         "vtbs": vtbs,
         "num_per_col": num_per_col,
     }
-    template_path = data_path / "info.html"
+    template_path = (
+            data_path / "info.html"
+            if a == "A"
+            else data_path / "info_B.html")
     if not template_path.exists():
-        url = "https://ghproxy.com/https://raw.githubusercontent.com/noneplugin/nonebot-plugin-ddcheck/main/nonebot_plugin_ddcheck/template/info.html"
+        url = (
+            "https://ghproxy.com/https://raw.githubusercontent.com/FengXin2125/zhenxun_plugin_ddcheck/main/ddcheck/info.html"
+            if a == "A"
+            else "https://ghproxy.com/https://raw.githubusercontent.com/FengXin2125/zhenxun_plugin_ddcheck/main/ddcheck/info_B.html")
         try:
             await AsyncHttpx.download_file(url, template_path, stream=True)
         except:
             try:
-                await AsyncHttpx.download_file(
-                    "https://raw.githubusercontent.com/noneplugin/nonebot-plugin-ddcheck/main/nonebot_plugin_ddcheck/template/info.html",
-                    template_path, stream=True)
+                ((await AsyncHttpx.download_file(
+                    "https://raw.githubusercontent.com/FengXin2125/zhenxun_plugin_ddcheck/main/ddcheck/info.html",
+                    template_path, stream=True))
+                 if a == "A"
+                 else (await AsyncHttpx.download_file(
+                    "https://raw.githubusercontent.com/FengXin2125/zhenxun_plugin_ddcheck/main/ddcheck/info_B.html",
+                    template_path, stream=True)))
+
             except:
                 logger.warning("获取资源失败，请检查网路")
                 return "获取资源失败，请检查网路"
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(data_path), enable_async=True
     )
-    template = env.get_template("info.html")
+    template = (
+            env.get_template("info.html")
+            if a == "A"
+            else env.get_template("info_B.html"))
     content = await template.render_async(info=result)
     return await html_to_pic(content, wait=0, viewport={"width": 100, "height": 100})
