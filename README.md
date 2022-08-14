@@ -18,6 +18,7 @@ zhenxun_bot 成分姬插件
 
 ```
 查成分 + B站用户名/UID
+查直播成分 + B站用户名/UID
 ```
 
 若要显示主播牌子，需要在 `configs\config.yaml` 文件中添加任意的B站用户cookie：
