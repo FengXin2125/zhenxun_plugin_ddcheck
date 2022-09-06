@@ -32,6 +32,7 @@ __plugin_resources__ = {
 }
 Config.add_plugin_config(
     "ddcheck",
+    "BILIBILI_BUVID_COOKIE",
     "BILIBILI_COOKIE",
     "",
     help_="若要显示主播牌子，需要添加任意的B站用户cookie"
