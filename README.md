@@ -24,6 +24,7 @@ zhenxun_bot 成分姬插件
 若要显示主播牌子，需要在 `configs\config.yaml` 文件中添加任意的B站用户cookie：
 
 ```
+BILIBILI_BUVID_COOKIE: xxx
 BILIBILI_COOKIE: xxx
 ```
 
@@ -32,7 +33,8 @@ BILIBILI_COOKIE: xxx
 `F12` 打开开发工具，查看 `www.bilibili.com` 请求的响应头，找形如 `SESSDATA=xxx;` 的字段，如：
 
 ```
-bilibili_cookie="SESSDATA=xxx;"
+BILIBILI_BUVID_COOKIE: 'buvid3=xxx'
+bilibili_cookie= "SESSDATA=xxx;"
 ```
 
 [![img](https://camo.githubusercontent.com/2f8d6fcd52dfbec7a4b5c8545cd6166a1ac9b162191d15ffadfb634c58a28efb/68747470733a2f2f73322e6c6f6c692e6e65742f323032322f30372f31392f4149426d64325a39563559776c6b462e706e67)](https://camo.githubusercontent.com/2f8d6fcd52dfbec7a4b5c8545cd6166a1ac9b162191d15ffadfb634c58a28efb/68747470733a2f2f73322e6c6f6c692e6e65742f323032322f30372f31392f4149426d64325a39563559776c6b462e706e67)
